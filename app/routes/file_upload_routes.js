@@ -66,7 +66,7 @@ router.get('/fileUploads/:id', requireToken, (req, res, next) => {
 router.post('/fileUploads', upload.single('file'), (req, res, next) => {
   // set owner of new fileUpload to be current user
   // req.body.fileUpload.owner = req.user.id
-
+  console.log(req.file)
   fileUploadApi(req.file.originalname, req.file.buffer, req.file.mimetype)
     .then(s3Response => {
       return FileUpload.create({
