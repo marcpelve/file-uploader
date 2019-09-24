@@ -67,18 +67,17 @@ router.post('/fileUploads', upload.single('file'), (req, res, next) => {
   // set owner of new fileUpload to be current user
   // req.body.fileUpload.owner = req.user.id
 
-  console.log(req.file)
   fileUploadApi(req.file.originalname, req.file.buffer, req.file.mimetype)
-    .then(console.log)
-    .then(() => res.sendStatus(204))
-  // FileUpload.create(req.body.fileUpload)
-  //   // respond to succesful `create` with status 201 and JSON of new "fileUpload"
-  //   .then(fileUpload => {
-  //     res.status(201).json({ fileUpload: fileUpload.toObject() })
-  //   })
-  //   // if an error occurs, pass it off to our error handler
-  //   // the error handler needs the error message and the `res` object so that it
-  //   // can send an error message back to the client
+    .then(s3Response => {
+      return FileUpload.create({
+        name: s3Response.Key,
+        fileType: req.file.mimetype,
+        url: s3Response.Location
+      })
+    })
+    .then(mongooseResponse => {
+      res.status(201).json({ fileUpload: mongooseResponse.toObject() })
+    })
     .catch(next)
 })
 
